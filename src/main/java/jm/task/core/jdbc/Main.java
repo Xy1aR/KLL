@@ -9,16 +9,17 @@ public class Main {
     public static void main(String[] args) {
         // реализуйте алгоритм здесь
         UserServiceImpl userService = new UserServiceImpl();
-        userService.createUsersTable();
-        userService.saveUser("Nikita", "Krasnikov", (byte) 23);
-        userService.saveUser("Ivan", "Ivanov", (byte) 12);
-        userService.saveUser("Petr", "Petrov", (byte) 199);
-        userService.saveUser("Aleksey", "Vorobyov", (byte) 9);
-        List<User> users = userService.getAllUsers();
-        for (User user : users) {
-            System.out.println(user);
-        }
-        userService.cleanUsersTable();
-        userService.dropUsersTable();
+        userService.removeUserById(4);
+//        userService.createUsersTable();
+//        userService.saveUser("Nikita", "Krasnikov", (byte) 23);
+//        userService.saveUser("Ivan", "Ivanov", (byte) 12);
+//        userService.saveUser("Petr", "Petrov", (byte) 127);
+//        userService.saveUser("Aleksey", "Vorobyov", (byte) 9);
+//        List<User> users = userService.getAllUsers();
+//        for (User user : users) {
+//            System.out.println(user);
+//        }
+//        userService.cleanUsersTable();
+//        userService.dropUsersTable();
     }
 }

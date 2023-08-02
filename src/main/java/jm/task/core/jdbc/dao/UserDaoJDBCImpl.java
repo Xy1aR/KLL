@@ -6,6 +6,7 @@ import jm.task.core.jdbc.util.Util;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UserDaoJDBCImpl implements UserDao {
@@ -22,6 +23,7 @@ public class UserDaoJDBCImpl implements UserDao {
                 " lastName VARCHAR(50) NOT NULL, " +
                 " age TINYINT(3) NOT NULL, " +
                 " PRIMARY KEY (id) )";
+
         try (Connection con = Util.getConnection();
              Statement statement = con.createStatement()) {
             statement.executeUpdate(sqlQuery);
@@ -32,6 +34,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void dropUsersTable() {
         String sqlQuery = "DROP TABLE IF EXISTS Users";
+
         try (Connection con = Util.getConnection();
              Statement statement = con.createStatement()) {
             statement.executeUpdate(sqlQuery);
@@ -42,37 +45,78 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void saveUser(String name, String lastName, byte age) {
         String sqlQuery = "INSERT INTO Users (name, lastName, age) VALUES (?, ?, ?)";
-        try (Connection con = Util.getConnection();
-             PreparedStatement statement = con.prepareStatement(sqlQuery)) {
-            con.setAutoCommit(false);
-            createUsersTable();
-            statement.setString(1, name);
-            statement.setString(2, lastName);
-            statement.setInt(3, age);
-            statement.executeUpdate();
-            con.commit();
-            logger.info(String.format("User с именем %s был добавлен в базу данных", name));
-        } catch (SQLException e) {
-            logger.warning(e.getMessage());
+        Connection con = null;
+
+        try {
+            con = Util.getConnection();
+        } catch (Exception exception) {
+            logger.warning(exception.getMessage());
+        }
+
+        if (con != null) {
+            try (PreparedStatement pstatement = con.prepareStatement(sqlQuery)) {
+                con.setAutoCommit(false);
+                createUsersTable();
+                pstatement.setString(1, name);
+                pstatement.setString(2, lastName);
+                pstatement.setInt(3, age);
+                pstatement.executeUpdate();
+                con.commit();
+                logger.log(Level.INFO, "User с именем {0} добавлен в базу данных", name);
+            } catch (Exception e) {
+                logger.warning(e.getMessage());
+                try {
+                    con.rollback();
+                } catch (SQLException ex) {
+                    logger.warning(e.getMessage());
+                }
+            } finally {
+                try {
+                    con.close();
+                } catch (SQLException exc) {
+                    logger.warning(exc.getMessage());
+                }
+            }
         }
     }
 
     public void removeUserById(long id) {
         String sqlQuery = "DELETE FROM Users WHERE id = (?)";
-        try (Connection con = Util.getConnection();
-             PreparedStatement statement = con.prepareStatement(sqlQuery)) {
-            con.setAutoCommit(false);
-            statement.setLong(1, id);
-            statement.executeUpdate();
-            con.commit();
+        Connection con = null;
+
+        try {
+            con = Util.getConnection();
         } catch (SQLException e) {
             logger.warning(e.getMessage());
+        }
+
+        if (con != null) {
+            try (PreparedStatement pstatement = con.prepareStatement(sqlQuery)) {
+                con.setAutoCommit(false);
+                pstatement.setLong(1, id);
+                pstatement.executeUpdate();
+                con.commit();
+            } catch (Exception e) {
+                logger.warning(e.getMessage());
+                try {
+                    con.rollback();
+                } catch (SQLException ex) {
+                    logger.warning(ex.getMessage());
+                }
+            } finally {
+                try {
+                    con.close();
+                } catch (SQLException exc) {
+                    logger.warning(exc.getMessage());
+                }
+            }
         }
     }
 
     public List<User> getAllUsers() {
         List<User> result = new ArrayList<>();
         String sqlString = "SELECT * FROM Users";
+
         try (Connection con = Util.getConnection();
              Statement statement = con.createStatement();
              ResultSet resultSet = statement.executeQuery(sqlString)) {
@@ -93,6 +137,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void cleanUsersTable() {
         String sqlQuery = "TRUNCATE TABLE Users";
+
         try (Connection con = Util.getConnection();
              Statement statement = con.createStatement()) {
             createUsersTable();

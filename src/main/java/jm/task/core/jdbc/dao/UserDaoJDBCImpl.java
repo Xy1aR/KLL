@@ -45,15 +45,9 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void saveUser(String name, String lastName, byte age) {
         String sqlQuery = "INSERT INTO Users (name, lastName, age) VALUES (?, ?, ?)";
-        Connection con = null;
 
-        try {
-            con = Util.getConnection();
-        } catch (Exception exception) {
-            logger.warning(exception.getMessage());
-        }
+        try (Connection con = Util.getConnection()) {
 
-        if (con != null) {
             try (PreparedStatement pstatement = con.prepareStatement(sqlQuery)) {
                 con.setAutoCommit(false);
                 createUsersTable();
@@ -70,27 +64,18 @@ public class UserDaoJDBCImpl implements UserDao {
                 } catch (SQLException ex) {
                     logger.warning(e.getMessage());
                 }
-            } finally {
-                try {
-                    con.close();
-                } catch (SQLException exc) {
-                    logger.warning(exc.getMessage());
-                }
             }
+
+        } catch (SQLException e) {
+            logger.warning(e.getMessage());
         }
     }
 
     public void removeUserById(long id) {
         String sqlQuery = "DELETE FROM Users WHERE id = (?)";
-        Connection con = null;
 
-        try {
-            con = Util.getConnection();
-        } catch (SQLException e) {
-            logger.warning(e.getMessage());
-        }
+        try (Connection con = Util.getConnection()) {
 
-        if (con != null) {
             try (PreparedStatement pstatement = con.prepareStatement(sqlQuery)) {
                 con.setAutoCommit(false);
                 pstatement.setLong(1, id);
@@ -103,13 +88,9 @@ public class UserDaoJDBCImpl implements UserDao {
                 } catch (SQLException ex) {
                     logger.warning(ex.getMessage());
                 }
-            } finally {
-                try {
-                    con.close();
-                } catch (SQLException exc) {
-                    logger.warning(exc.getMessage());
-                }
             }
+        } catch (SQLException e) {
+            logger.warning(e.getMessage());
         }
     }
 

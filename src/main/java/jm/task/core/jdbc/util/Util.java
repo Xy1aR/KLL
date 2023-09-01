@@ -32,7 +32,7 @@ public class Util {
                         .setProperty("hibernate.connection.password", PASSWORD)
                         .setProperty("show_sql", "true")
                         .setProperty("current_session_context_class", "thread")
-                        .setProperty("hibernate.hbm2ddl_auto", "");
+                        .setProperty("hibernate.hbm2ddl_auto", "valid");
 
                 sessionFactory = cfg.buildSessionFactory();
 

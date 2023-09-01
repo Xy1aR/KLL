@@ -4,7 +4,6 @@ import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.query.NativeQuery;
 import org.hibernate.query.Query;
 
 import java.util.ArrayList;
@@ -23,6 +22,7 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void createUsersTable() {
+        Transaction transaction = null;
         String sqlQuery = "CREATE TABLE IF NOT EXISTS Users (" +
                 " id BIGINT NOT NULL AUTO_INCREMENT, " +
                 " name VARCHAR(50) NOT NULL, " +
@@ -31,21 +31,32 @@ public class UserDaoHibernateImpl implements UserDao {
                 " PRIMARY KEY (id) )";
 
         try (Session session = Util.getSessionFactory().openSession()) {
-            NativeQuery query = session.createSQLQuery(sqlQuery);
+            transaction = session.beginTransaction();
+            Query query = session.createSQLQuery(sqlQuery);
             query.executeUpdate();
+            transaction.commit();
         } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
             logger.warning(e.getMessage());
         }
     }
 
     @Override
     public void dropUsersTable() {
+        Transaction transaction = null;
         String sqlQuery = "DROP TABLE IF EXISTS Users";
 
         try (Session session = Util.getSessionFactory().openSession()) {
-            NativeQuery query = session.createSQLQuery(sqlQuery);
+            transaction = session.beginTransaction();
+            Query query = session.createSQLQuery(sqlQuery);
             query.executeUpdate();
+            transaction.commit();
         } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
             logger.warning(e.getMessage());
         }
     }
@@ -75,7 +86,7 @@ public class UserDaoHibernateImpl implements UserDao {
 
         try (Session session = Util.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            Query query = session.createQuery(sqlQuery);
+            Query<User> query = session.createQuery(sqlQuery, User.class);
             query.setParameter("id", id);
             query.executeUpdate();
             transaction.commit();

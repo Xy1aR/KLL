@@ -9,14 +9,15 @@ import java.sql.SQLException;
 
 public class Util {
     // реализуйте настройку соеденения с БД
-    private static final String URL = "jdbc:mysql://localhost:3306/task_1.1.4";
+    private static final String URL_JDBC = "jdbc:mysql://localhost:3306/task_1.1.4";
+    private static final String URL_HIBER = "jdbc:mysql://localhost:3306/task_1.1.5";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "root";
 
     private static SessionFactory sessionFactory;
 
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USERNAME, PASSWORD);
+        return DriverManager.getConnection(URL_JDBC, USERNAME, PASSWORD);
     }
 
     public static SessionFactory getSessionFactory() {
@@ -26,9 +27,9 @@ public class Util {
                         .addAnnotatedClass(jm.task.core.jdbc.model.User.class)
                         .setProperty("dialect", "org.hibernate.dialect.MySQL8Dialect")
                         .setProperty("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver")
-                        .setProperty("hibernate.connection.url", "jdbc:mysql://localhost:3306/task_1.1.5")
-                        .setProperty("hibernate.connection.username", "root")
-                        .setProperty("hibernate.connection.password", "root")
+                        .setProperty("hibernate.connection.url", URL_HIBER)
+                        .setProperty("hibernate.connection.username", USERNAME)
+                        .setProperty("hibernate.connection.password", PASSWORD)
                         .setProperty("show_sql", "true")
                         .setProperty("current_session_context_class", "thread")
                         .setProperty("hibernate.hbm2ddl_auto", "");
